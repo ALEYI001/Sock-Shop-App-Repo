@@ -48,24 +48,25 @@ pipeline {
       }
     }
     
-    stage ('Slack Notification for prod') {
+    stage ('Slack Notification for stage') {
       steps {
-        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '#1st-december-sock-shop-kubernetes-project-using-ansible', tokenCredentialId: 'slack'
+        slackSend channel: 'Cloudhight', message: 'New Stage Deployment', teamDomain: '1st-december-sock-shop-kubernetes-project-using-ansible', tokenCredentialId: 'slack'
       }
     }
     
     stage ('DAST Scan') {
       steps {
         sh '''
+          sleep 30s
           chmod 777 $(pwd)
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.work-experience-2025.buzz -g gen.conf -r testreport.html || true
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.work-experience2025.buzz -g gen.conf -r testreport.html || true
         '''
       }
     }
     
     stage ('Prompt for Approval') {
       steps {
-        timeout(activity: true, time: 5) {
+        timeout(activity: true, time: 10) {
           input message: 'Review before approval', submitter: 'admin'
         }
       }
@@ -137,7 +138,7 @@ pipeline {
       }
     }
     
-    stage ('Slack Notification') {
+    stage ('Slack Notification for prod') {
       steps {
         slackSend channel: 'Cloudhight', message: 'New Production Deployment', teamDomain: '1st-december-sock-shop-kubernetes-project-using-ansible', tokenCredentialId: 'slack'
       }
