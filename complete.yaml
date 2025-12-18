@@ -299,7 +299,7 @@ spec:
   ports:
   - port: 80
     targetPort: 8079
-    nodePort: 30001
+    nodePort: 30000
   selector:
     name: front-end
 ---
