@@ -33,7 +33,7 @@ pipeline {
             '''
             
             // SSH through the tunnel to Ansible server on port 22
-            sshagent(['ansible-key']) {
+            sshagent(['bastion-key', 'ansible-key']) {
               sh '''
                 ssh -o StrictHostKeyChecking=no \
                     -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@localhost -p 9999" \
@@ -132,7 +132,7 @@ pipeline {
               sleep 5
             '''
             
-            sshagent(['ansible-key']) {
+            sshagent(['bastion-key', 'ansible-key']) {
               sh '''
                 ssh -o StrictHostKeyChecking=no \
                     -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no ubuntu@localhost -p 9999" \
