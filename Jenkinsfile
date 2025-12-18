@@ -92,7 +92,7 @@ pipeline {
                         git merge --no-ff -X theirs origin/${STAGE_BRANCH} -m "Automated merge of stage into main by Jenkins \${BUILD_NUMBER}"
                         
                         # Update nodeport from 30000 to 30001 in main branch
-                        sed -i 's|nodeport: 30000|nodeport: 30001|g' ${DEPLOYMENT_MANIFEST}
+                        sed -i 's|nodePort: 30000|nodePort: 30001|g' ${DEPLOYMENT_MANIFEST}
                         
                         git add ${DEPLOYMENT_MANIFEST}
                         if git diff --cached --quiet; then
