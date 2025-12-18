@@ -110,7 +110,7 @@ pipeline {
               git fetch origin
               git checkout ${MAIN_BRANCH}
               git pull origin ${MAIN_BRANCH}
-              git merge --no-ff origin/${STAGE_BRANCH} -m "Automated merge of stage into main by Jenkins \${BUILD_NUMBER}"
+              git merge --no-ff -X theirs origin/${STAGE_BRANCH} -m "Automated merge of stage into main by Jenkins \${BUILD_NUMBER}"
               REPO_URL_HTTPS=\$(echo "${GIT_REPO_URL}" | sed 's|https://||')
               git push https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL_HTTPS} ${MAIN_BRANCH}
             """
