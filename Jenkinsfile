@@ -11,7 +11,7 @@ pipeline {
     AWS_REGION = 'us-east-1'
     APP_REPO_NAME = "Sock-Shop-App-Repo"
     PORT = "30001"
-    DEPLOYMENT_MANIFEST = "complete.yml"
+    DEPLOYMENT_MANIFEST = "complete.yaml"
     GIT_REPO_URL = "https://github.com/CloudHight/Sock-Shop-App-Repo.git"
     STAGE_BRANCH = "stage"
     MAIN_BRANCH = "main"
