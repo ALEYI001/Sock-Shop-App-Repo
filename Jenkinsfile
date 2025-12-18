@@ -71,7 +71,7 @@ pipeline {
       }
     }
 
-    stage('Update Deployment Manifest in Stage Branch') {
+    stage('Update Deployment Manifest in Main Branch') {
         steps {
             script {
                 withCredentials([usernamePassword(credentialsId: 'git-cred', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
@@ -81,42 +81,33 @@ pipeline {
                         cd ${APP_REPO_NAME}
                         git config --global user.email "jenkins@set30.space"
                         git config --global user.name "Jenkins CI"
+                        
+                        # Checkout stage and pull latest
                         git checkout ${STAGE_BRANCH}
                         git pull origin ${STAGE_BRANCH} --rebase
-                        sed -i 's|nodeport: ${PORT}:.*|nodeport: ${PORT}|' ${DEPLOYMENT_MANIFEST}
+                        
+                        # Merge stage into main with conflict resolution strategy
+                        git checkout ${MAIN_BRANCH}
+                        git pull origin ${MAIN_BRANCH}
+                        git merge --no-ff -X theirs origin/${STAGE_BRANCH} -m "Automated merge of stage into main by Jenkins \${BUILD_NUMBER}"
+                        
+                        # Update nodeport from 30000 to 30001 in main branch
+                        sed -i 's|nodeport: 30000|nodeport: 30001|g' ${DEPLOYMENT_MANIFEST}
+                        
                         git add ${DEPLOYMENT_MANIFEST}
                         if git diff --cached --quiet; then
-                            echo "No changes detected, skipping commit in stage branch."
+                            echo "No changes detected in nodeport, skipping commit."
                         else
-                            git commit -m "Update nodeport number to ${PORT} in stage branch"
-                            git push https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPO_URL.replace('https://', '')} ${STAGE_BRANCH}
+                            git commit -m "Update nodeport from 30000 to 30001 in main branch"
                         fi
+                        
+                        # Push the updated main branch
+                        REPO_URL_HTTPS=\$(echo "${GIT_REPO_URL}" | sed 's|https://||')
+                        git push https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL_HTTPS} ${MAIN_BRANCH}
                     """
                 }
             }
         }
-    }
-    
-    stage ('Merge stage into main') {
-      steps {
-        script {
-          // Merge `stage` branch into `main` using the existing git-cred credentials
-          withCredentials([usernamePassword(credentialsId: 'git-cred', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
-            sh """
-              set -e
-              cd ${APP_REPO_NAME}
-              git config --global user.email "jenkins@set30.space"
-              git config --global user.name "Jenkins CI"
-              git fetch origin
-              git checkout ${MAIN_BRANCH}
-              git pull origin ${MAIN_BRANCH}
-              git merge --no-ff -X theirs origin/${STAGE_BRANCH} -m "Automated merge of stage into main by Jenkins \${BUILD_NUMBER}"
-              REPO_URL_HTTPS=\$(echo "${GIT_REPO_URL}" | sed 's|https://||')
-              git push https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL_HTTPS} ${MAIN_BRANCH}
-            """
-          }
-        }
-      }
     }
     
     stage ('Deploying to Prod Environment') {
