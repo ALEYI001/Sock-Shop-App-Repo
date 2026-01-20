@@ -59,7 +59,7 @@ pipeline {
         sh '''
           sleep 30s
           chmod 777 $(pwd)
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.work-experience2025.buzz -g gen.conf -r testreport.html || true
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://stage.aleyi.space -g gen.conf -r testreport.html || true
         '''
       }
     }
